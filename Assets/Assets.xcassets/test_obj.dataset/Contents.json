@@ -1,0 +1,12 @@
+{
+  "data" : [
+    {
+      "filename" : "test_obj.obj",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

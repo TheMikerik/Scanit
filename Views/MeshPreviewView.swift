@@ -9,6 +9,12 @@ struct MeshPreviewView: View {
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.gray.opacity(0.2))
+
+                if !scan.mesh.isEmpty {
+                    Model3D(modelName: scan.mesh)
+                        .cornerRadius(12)
+                }
+                
                 VStack {
                     Spacer()
                     HStack {
@@ -39,10 +45,8 @@ struct MeshPreviewView: View {
                     .background(Color.gray.opacity(0.1))
                     .cornerRadius(10)
 
-                // Buttons
                 HStack(spacing: 12) {
                     Button(action: {
-                        // Share action
                         print("Share scan")
                     }) {
                         HStack {
@@ -91,7 +95,7 @@ struct MeshPreviewView_Previews: PreviewProvider {
             date: Date(),
             favorite: true,
             size: 123.45,
-            mesh: "3D Model Placeholder",
+            mesh: "test_obj.obj",
             description: "This is a sample scan for preview purposes"
         )
 

@@ -1,3 +1,4 @@
+// ScanCard.swift
 import SwiftUI
 
 struct ScanCard: View {
@@ -7,6 +8,12 @@ struct ScanCard: View {
         ZStack {
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.gray.opacity(0.2))
+
+            if !scan.mesh.isEmpty {
+                Model3D(modelName: scan.mesh)
+                    .cornerRadius(12)
+            }
+
             VStack {
                 HStack {
                     Text(scan.name)
@@ -31,7 +38,15 @@ struct ScanCard: View {
 
 struct ScanCard_Previews: PreviewProvider {
     static var previews: some View {
-        let sampleScan = ScanModel(
+        let sampleScanWithModel = ScanModel(
+            name: "Test Model",
+            date: Date(),
+            favorite: true,
+            size: 2.3,
+            mesh: "test_obj.obj", // Updated mesh name
+            description: "A test 3D model."
+        )
+        let sampleScanWithoutModel = ScanModel(
             name: "Tst",
             date: Date(),
             favorite: true,
@@ -39,8 +54,14 @@ struct ScanCard_Previews: PreviewProvider {
             mesh: "",
             description: ""
         )
-        ScanCard(scan: sampleScan)
-            .padding()
-            .previewLayout(.sizeThatFits)
+        VStack {
+            ScanCard(scan: sampleScanWithModel)
+                .padding()
+                .previewLayout(.sizeThatFits)
+
+            ScanCard(scan: sampleScanWithoutModel)
+                .padding()
+                .previewLayout(.sizeThatFits)
+        }
     }
 }
