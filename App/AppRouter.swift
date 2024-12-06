@@ -7,13 +7,16 @@ struct AppRouter: View {
     var body: some View {
         NavigationStack {
             switch router.currentRoute {
+
             case .home:
                 HomeView()
                     .environmentObject(homeViewModel)
                     .environmentObject(router)
+
             case .scanner:
                 ScannerView()
                     .environmentObject(router)
+
             case .meshPreview:
                 if let firstScan = MockData.scans.first {
                     MeshPreviewView(scan: firstScan)
@@ -21,11 +24,16 @@ struct AppRouter: View {
                 } else {
                     Text("No scan available")
                 }
+
             case .settings:
                 SettingsView()
+                    .environmentObject(router)
+                    .environmentObject(homeViewModel) 
+
             case .scanDetail(let scan):
                 ScanDetailView(scan: scan)
                     .environmentObject(router)
+
             }
         }
     }
