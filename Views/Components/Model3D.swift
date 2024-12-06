@@ -1,17 +1,16 @@
-// Model3D.swift
 import SwiftUI
 import SceneKit
 
 struct Model3D: UIViewRepresentable {
     let modelName: String
+    let isInteractionEnabled: Bool
 
     func makeUIView(context: Context) -> SCNView {
         let sceneView = SCNView()
-        sceneView.allowsCameraControl = true
+        sceneView.allowsCameraControl = isInteractionEnabled
         sceneView.autoenablesDefaultLighting = true
         sceneView.backgroundColor = .clear
 
-        // Load the scene
         let scene = SCNScene()
         if let objScene = loadModel(named: modelName) {
             scene.rootNode.addChildNode(objScene.rootNode)
@@ -22,7 +21,7 @@ struct Model3D: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: SCNView, context: Context) {
-        // No updates needed for now
+        uiView.allowsCameraControl = isInteractionEnabled
     }
 
     private func loadModel(named name: String) -> SCNScene? {
@@ -43,7 +42,7 @@ struct Model3D: UIViewRepresentable {
 
 struct Model3D_Previews: PreviewProvider {
     static var previews: some View {
-        Model3D(modelName: "test_obj.obj")
+        Model3D(modelName: "test_obj.obj", isInteractionEnabled: true)
             .frame(width: 200, height: 200)
     }
 }

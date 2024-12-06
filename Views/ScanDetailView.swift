@@ -13,6 +13,11 @@ struct ScanDetailView: View {
                         .edgesIgnoringSafeArea(.bottom)
                         .frame(width: geometry.size.width, height: geometry.size.height)
 
+                    if !scan.mesh.isEmpty {
+                        Model3D(modelName: scan.mesh, isInteractionEnabled: true)
+                            .cornerRadius(12)
+                    }
+
                     VStack {
                         Text(scan.name)
                             .font(.largeTitle)

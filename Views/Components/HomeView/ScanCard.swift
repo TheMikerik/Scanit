@@ -1,8 +1,8 @@
-// ScanCard.swift
 import SwiftUI
 
 struct ScanCard: View {
     let scan: ScanModel
+    let isInteractionEnabled: Bool
 
     var body: some View {
         ZStack {
@@ -10,7 +10,7 @@ struct ScanCard: View {
                 .fill(Color.gray.opacity(0.2))
 
             if !scan.mesh.isEmpty {
-                Model3D(modelName: scan.mesh)
+                Model3D(modelName: scan.mesh, isInteractionEnabled: isInteractionEnabled)
                     .cornerRadius(12)
             }
 
@@ -43,7 +43,7 @@ struct ScanCard_Previews: PreviewProvider {
             date: Date(),
             favorite: true,
             size: 2.3,
-            mesh: "test_obj.obj", // Updated mesh name
+            mesh: "test_obj.obj",
             description: "A test 3D model."
         )
         let sampleScanWithoutModel = ScanModel(
@@ -55,11 +55,11 @@ struct ScanCard_Previews: PreviewProvider {
             description: ""
         )
         VStack {
-            ScanCard(scan: sampleScanWithModel)
+            ScanCard(scan: sampleScanWithModel, isInteractionEnabled: false)
                 .padding()
                 .previewLayout(.sizeThatFits)
 
-            ScanCard(scan: sampleScanWithoutModel)
+            ScanCard(scan: sampleScanWithoutModel, isInteractionEnabled: false)
                 .padding()
                 .previewLayout(.sizeThatFits)
         }

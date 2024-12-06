@@ -14,7 +14,7 @@ struct HomeView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         LazyHStack(spacing: 16) {
                             ForEach(viewModel.models.filter { $0.favorite }) { scan in
-                                ScanCard(scan: scan)
+                                ScanCard(scan: scan, isInteractionEnabled: false)
                                     .frame(width: 215, height: 150)
                                     .onTapGesture {
                                         router.currentRoute = .scanDetail(scan)
@@ -30,7 +30,7 @@ struct HomeView: View {
                         .padding(.horizontal)
                     LazyVStack(spacing: 16) {
                         ForEach(viewModel.models) { scan in
-                            ScanCard(scan: scan)
+                            ScanCard(scan: scan, isInteractionEnabled: false)
                                 .frame(height: 180)
                                 .onTapGesture {
                                     router.currentRoute = .scanDetail(scan)

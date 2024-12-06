@@ -11,7 +11,7 @@ struct MeshPreviewView: View {
                     .fill(Color.gray.opacity(0.2))
 
                 if !scan.mesh.isEmpty {
-                    Model3D(modelName: scan.mesh)
+                    Model3D(modelName: scan.mesh, isInteractionEnabled: true)
                         .cornerRadius(12)
                 }
                 
