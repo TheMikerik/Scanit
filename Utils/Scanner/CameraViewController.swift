@@ -10,6 +10,7 @@ class CameraViewController: UIViewController {
     private var previewLayer: AVCaptureVideoPreviewLayer!
     private var outputSynchronizer: AVCaptureDataOutputSynchronizer!
     private let dataOutputQueue = DispatchQueue(label: "data output queue")
+    private let visualizationQueue = DispatchQueue(label: "visualization queue")
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -85,27 +86,12 @@ class CameraViewController: UIViewController {
         outputSynchronizer = AVCaptureDataOutputSynchronizer(dataOutputs: [videoDataOutput, depthDataOutput])
         outputSynchronizer!.setDelegate(self, queue: dataOutputQueue)
     }
-}
 
-extension CameraViewController: AVCaptureDataOutputSynchronizerDelegate {
-    func dataOutputSynchronizer(_ synchronizer: AVCaptureDataOutputSynchronizer, didOutput synchronizedDataCollection: AVCaptureSynchronizedDataCollection) {
-        if let syncedDepthData = synchronizedDataCollection.synchronizedData(for: depthDataOutput) as? AVCaptureSynchronizedDepthData {
-            var depthData = syncedDepthData.depthData
-
-            depthData = depthData.converting(
-                toDepthDataType: kCVPixelFormatType_DisparityFloat32
-            )
-
-
-            visualizeDepth(depthData)
-        }
-    }
-    
     private func visualizeDepth(_ depthData: AVDepthData) {
-        let depthMap = depthData.depthDataMap
-        let normalizedMap = normalizeDepthMap(depthMap)
-
-
+        visualizationQueue.async {
+            let depthMap = depthData.depthDataMap
+            let normalizedMap = self.normalizeDepthMap(depthMap)
+        }
     }
 
     private func normalizeDepthMap(_ depthMap: CVPixelBuffer) -> [Float] {
@@ -122,7 +108,6 @@ extension CameraViewController: AVCaptureDataOutputSynchronizerDelegate {
         let mapBuffer = baseAddress.assumingMemoryBound(to: Float32.self)
 
         var normalizedDepthMap: [Float] = []
-
         let firstPixel = mapBuffer[0]
         var minDepth: Float = firstPixel
         var maxDepth: Float = firstPixel
@@ -152,5 +137,17 @@ extension CameraViewController: AVCaptureDataOutputSynchronizerDelegate {
         CVPixelBufferUnlockBaseAddress(depthMap, CVPixelBufferLockFlags.readOnly)
         
         return normalizedDepthMap
+    }
+}
+
+extension CameraViewController: AVCaptureDataOutputSynchronizerDelegate {
+    func dataOutputSynchronizer(_ synchronizer: AVCaptureDataOutputSynchronizer, didOutput synchronizedDataCollection: AVCaptureSynchronizedDataCollection) {
+        guard let syncedDepthData = synchronizedDataCollection.synchronizedData(for: depthDataOutput) as? AVCaptureSynchronizedDepthData else {
+            return
+        }
+
+        var depthData = syncedDepthData.depthData
+        depthData = depthData.converting(toDepthDataType: kCVPixelFormatType_DisparityFloat32)
+        visualizeDepth(depthData)
     }
 }
