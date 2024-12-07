@@ -64,7 +64,7 @@ class CameraViewController: UIViewController {
         guard let cameraStream = cameraStream else { return }
         let depthFormats = cameraStream.activeFormat.supportedDepthDataFormats
         let filtered = depthFormats.filter({
-            CMFormatDescriptionGetMediaSubType($0.formatDescription) == kCVPixelFormatType_DepthFloat16
+            CMFormatDescriptionGetMediaSubType($0.formatDescription) == kCVPixelFormatType_DepthFloat32
         })
         if let selectedFormat = filtered.max(by: { first, second in
             CMVideoFormatDescriptionGetDimensions(first.formatDescription).width < CMVideoFormatDescriptionGetDimensions(second.formatDescription).width
