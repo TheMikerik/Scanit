@@ -1,0 +1,1 @@
+- Jak to udelat s databazi? Maji se .obj ukladat lokalne nebo nekde do databaze? Popr jakou databazi pouzit?

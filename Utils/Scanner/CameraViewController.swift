@@ -1,7 +1,6 @@
 import UIKit
 import AVFoundation
 
-// https://developer.apple.com/documentation/avfoundation/streaming-depth-data-from-the-truedepth-camera#Overview
 class CameraViewController: UIViewController {
     private let session = AVCaptureSession()
     private let sessionQueue = DispatchQueue(label: "session queue", attributes: [], autoreleaseFrequency: .workItem)
@@ -90,6 +89,63 @@ class CameraViewController: UIViewController {
 
 extension CameraViewController: AVCaptureDataOutputSynchronizerDelegate {
     func dataOutputSynchronizer(_ synchronizer: AVCaptureDataOutputSynchronizer, didOutput synchronizedDataCollection: AVCaptureSynchronizedDataCollection) {
-        // Handle synchronized output data
+        if let syncedDepthData = synchronizedDataCollection.synchronizedData(for: depthDataOutput) as? AVCaptureSynchronizedDepthData {
+            var depthData = syncedDepthData.depthData
+
+            depthData = depthData.converting(
+                toDepthDataType: kCVPixelFormatType_DisparityFloat32
+            )
+
+
+            visualizeDepth(depthData)
+        }
+    }
+    
+    private func visualizeDepth(_ depthData: AVDepthData) {
+        let depthMap = depthData.depthDataMap
+        let normalizedMap = normalizeDepthMap(depthMap)
+
+
+    }
+
+    private func normalizeDepthMap(_ depthMap: CVPixelBuffer) -> [Float] {
+        CVPixelBufferLockBaseAddress(depthMap, CVPixelBufferLockFlags.readOnly)
+        
+        let width = CVPixelBufferGetWidth(depthMap)
+        let height = CVPixelBufferGetHeight(depthMap)
+        // This may be unsafe, maybe it will cause problems later idk
+        let mapBuffer = CVPixelBufferGetBaseAddress(depthMap)!.assumingMemoryBound(to: Float32.self)
+        
+        var normalizedDepthMap: [Float] = []
+
+        let firstPixel = mapBuffer[0]
+        var minDepth: Float = firstPixel
+        var maxDepth: Float = firstPixel
+
+        for y in 0..<height {
+            for x in 0..<width {
+                let pixel = mapBuffer[y * width + x]
+                if pixel < minDepth {
+                    minDepth = pixel
+                }
+                if pixel > maxDepth {
+                    maxDepth = pixel
+                }
+            }
+        }
+
+        let range = maxDepth - minDepth
+
+        for y in 0..<height {
+            for x in 0..<width {
+                let pixel = mapBuffer[y * width + x]
+                let normalizedPixel = (pixel - minDepth) / range
+                normalizedDepthMap.append(normalizedPixel)
+            }
+        }
+
+        CVPixelBufferUnlockBaseAddress(depthMap, CVPixelBufferLockFlags.readOnly)
+        
+        return normalizedDepthMap
     }
 }
