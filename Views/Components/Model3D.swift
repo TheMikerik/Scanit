@@ -13,7 +13,9 @@ struct Model3D: UIViewRepresentable {
 
         let scene = SCNScene()
         if let objScene = loadModel(named: modelName) {
-            scene.rootNode.addChildNode(objScene.rootNode)
+            for child in objScene.rootNode.childNodes {
+                scene.rootNode.addChildNode(child.clone())
+            }
         }
 
         sceneView.scene = scene
@@ -37,12 +39,5 @@ struct Model3D: UIViewRepresentable {
             print("Error loading \(name): \(error)")
             return nil
         }
-    }
-}
-
-struct Model3D_Previews: PreviewProvider {
-    static var previews: some View {
-        Model3D(modelName: "test_obj.obj", isInteractionEnabled: true)
-            .frame(width: 200, height: 200)
     }
 }

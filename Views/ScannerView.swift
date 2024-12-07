@@ -8,8 +8,7 @@ struct ScannerView: View {
         ZStack {
             GeometryReader { geometry in
                 ZStack {
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.1))
+                    CameraView()
                         .edgesIgnoringSafeArea(.bottom)
                         .frame(width: geometry.size.width, height: geometry.size.height)
                     
