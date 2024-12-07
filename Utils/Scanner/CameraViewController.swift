@@ -6,18 +6,19 @@ class CameraViewController: UIViewController {
     private let session = AVCaptureSession()
     private let sessionQueue = DispatchQueue(label: "session queue", attributes: [], autoreleaseFrequency: .workItem)
     private let depthDataOutput = AVCaptureDepthDataOutput()
+    private let videoDataOutput = AVCaptureVideoDataOutput()
     private var cameraStream: AVCaptureDevice?
     private var previewLayer: AVCaptureVideoPreviewLayer!
+    private var outputSynchronizer: AVCaptureDataOutputSynchronizer!
+    private let dataOutputQueue = DispatchQueue(label: "data output queue")
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Initialize AVCaptureVideoPreviewLayer
         previewLayer = AVCaptureVideoPreviewLayer(session: session)
         previewLayer.videoGravity = .resizeAspectFill
         view.layer.addSublayer(previewLayer)
         
-        // Configure the session in the background
         sessionQueue.async { [unowned self] in
             configureSession()
             session.startRunning()
@@ -32,7 +33,6 @@ class CameraViewController: UIViewController {
     private func configureSession() {
         session.beginConfiguration()
 
-        // Set up video device input
         if let phoneCamera = AVCaptureDevice.default(.builtInTrueDepthCamera, for: .video, position: .front) {
             cameraStream = phoneCamera
             if let input = try? AVCaptureDeviceInput(device: phoneCamera), session.canAddInput(input) {
@@ -44,7 +44,6 @@ class CameraViewController: UIViewController {
             print("No TrueDepth camera available")
         }
 
-        // Add depth data output
         if session.canAddOutput(depthDataOutput) {
             session.addOutput(depthDataOutput)
             depthDataOutput.isFilteringEnabled = false
@@ -57,7 +56,12 @@ class CameraViewController: UIViewController {
             print("Could not add depth data output")
         }
 
-        // Configure depth data format
+        if session.canAddOutput(videoDataOutput) {
+            session.addOutput(videoDataOutput)
+        } else {
+            print("Could not add video data output")
+        }
+
         guard let cameraStream = cameraStream else { return }
         let depthFormats = cameraStream.activeFormat.supportedDepthDataFormats
         let filtered = depthFormats.filter({
@@ -72,14 +76,20 @@ class CameraViewController: UIViewController {
                 cameraStream.unlockForConfiguration()
             } catch {
                 print("Could not lock device for configuration: \(error)")
-                setupResult = .configurationFailed
-                session.commitConfiguration()
-                return
             }
         } else {
             print("Could not find suitable depth format")
         }
 
         session.commitConfiguration()
+        
+        outputSynchronizer = AVCaptureDataOutputSynchronizer(dataOutputs: [videoDataOutput, depthDataOutput])
+        outputSynchronizer!.setDelegate(self, queue: dataOutputQueue)
+    }
+}
+
+extension CameraViewController: AVCaptureDataOutputSynchronizerDelegate {
+    func dataOutputSynchronizer(_ synchronizer: AVCaptureDataOutputSynchronizer, didOutput synchronizedDataCollection: AVCaptureSynchronizedDataCollection) {
+        // Handle synchronized output data
     }
 }
