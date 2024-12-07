@@ -109,13 +109,18 @@ extension CameraViewController: AVCaptureDataOutputSynchronizerDelegate {
     }
 
     private func normalizeDepthMap(_ depthMap: CVPixelBuffer) -> [Float] {
-        CVPixelBufferLockBaseAddress(depthMap, CVPixelBufferLockFlags.readOnly)
-        
         let width = CVPixelBufferGetWidth(depthMap)
         let height = CVPixelBufferGetHeight(depthMap)
-        // This may be unsafe, maybe it will cause problems later idk
-        let mapBuffer = CVPixelBufferGetBaseAddress(depthMap)!.assumingMemoryBound(to: Float32.self)
         
+        CVPixelBufferLockBaseAddress(depthMap, CVPixelBufferLockFlags.readOnly)
+        guard let baseAddress = CVPixelBufferGetBaseAddress(depthMap) else {
+            CVPixelBufferUnlockBaseAddress(depthMap, CVPixelBufferLockFlags.readOnly)
+            print("Failed to get base address")
+            return []
+        }
+        
+        let mapBuffer = baseAddress.assumingMemoryBound(to: Float32.self)
+
         var normalizedDepthMap: [Float] = []
 
         let firstPixel = mapBuffer[0]
