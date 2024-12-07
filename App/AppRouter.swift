@@ -21,6 +21,7 @@ struct AppRouter: View {
                 if let firstScan = MockData.scans.first {
                     MeshPreviewView(scan: firstScan)
                         .environmentObject(router)
+                        .environmentObject(homeViewModel)
                 } else {
                     Text("No scan available")
                 }
@@ -42,4 +43,5 @@ struct AppRouter: View {
 #Preview {
     AppRouter()
         .environmentObject(Router())
+        .environmentObject(HomeViewModel())
 }

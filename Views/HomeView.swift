@@ -3,6 +3,8 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject var router: Router
     @EnvironmentObject var viewModel: HomeViewModel
+    
+    @State private var selectedFilter: FilterOption = .newest
 
     var body: some View {
         ZStack {
@@ -23,26 +25,44 @@ struct HomeView: View {
                                             .onTapGesture {
                                                 router.currentRoute = .scanDetail(scan)
                                             }
+                                            .environmentObject(viewModel)
                                     }
                                 }
                                 .padding(.horizontal)
                             }
                             .frame(height: 150)
                         }
-
-                        Text("All Scans")
-                            .font(.headline)
+                        
+                        HStack {
+                            Text("All Scans")
+                                .font(.headline)
+                                .padding(.horizontal)
+                            Spacer()
+                            Picker("Filter", selection: $selectedFilter) {
+                                Text("Newest").tag(FilterOption.newest)
+                                Text("Oldest").tag(FilterOption.oldest)
+                                Text("Largest").tag(FilterOption.largest)
+                                Text("Smallest").tag(FilterOption.smallest)
+                            }
+                            .pickerStyle(MenuPickerStyle())
                             .padding(.horizontal)
+                            .onChange(of: selectedFilter) {
+                                viewModel.applyFilter(selectedFilter)
+                            }
+                        }
+                        
                         LazyVStack(spacing: 16) {
-                            ForEach(viewModel.models) { scan in
+                            ForEach(viewModel.filteredModels) { scan in
                                 ScanCard(scan: scan, isInteractionEnabled: false)
                                     .frame(height: 180)
                                     .onTapGesture {
                                         router.currentRoute = .scanDetail(scan)
                                     }
+                                    .environmentObject(viewModel)
                             }
                         }
                         .padding(.horizontal)
+                        .padding(.bottom, 100)
                     }
                 }
             }
@@ -67,8 +87,17 @@ struct HomeView: View {
     }
 }
 
-#Preview {
-    HomeView()
-        .environmentObject(Router())
-        .environmentObject(HomeViewModel())
+enum FilterOption: String, CaseIterable {
+    case newest = "Newest"
+    case oldest = "Oldest"
+    case largest = "Largest"
+    case smallest = "Smallest"
+}
+
+struct HomeView_Previews: PreviewProvider {
+    static var previews: some View {
+        HomeView()
+            .environmentObject(Router())
+            .environmentObject(HomeViewModel())
+    }
 }

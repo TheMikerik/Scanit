@@ -2,6 +2,10 @@ import SwiftUI
 
 struct MeshPreviewView: View {
     @EnvironmentObject var router: Router
+    @EnvironmentObject var homeViewModel: HomeViewModel
+    @State private var scanName: String = ""
+    @State private var scanDescription: String = ""
+    @State private var showSnackbar: Bool = false
     var scan: ScanModel
 
     var body: some View {
@@ -35,12 +39,12 @@ struct MeshPreviewView: View {
                 Text("Save Scan")
                     .font(.headline)
 
-                TextField("Name:", text: .constant(""))
+                TextField("Name:", text: $scanName)
                     .padding()
                     .background(Color.gray.opacity(0.1))
                     .cornerRadius(10)
 
-                TextField("Description: (optional)", text: .constant(""))
+                TextField("Description: (optional)", text: $scanDescription)
                     .padding()
                     .background(Color.gray.opacity(0.1))
                     .cornerRadius(10)
@@ -49,6 +53,7 @@ struct MeshPreviewView: View {
                     Button(action: {
                         print("Share scan")
                     }) {
+                        //TODO(Miky): Implement the Share method
                         HStack {
                             Image(systemName: "square.and.arrow.up")
                             Text("Share")
@@ -59,7 +64,12 @@ struct MeshPreviewView: View {
                     }
 
                     Button(action: {
-                        print("Save scan")
+                        homeViewModel.saveScan(withName: scanName, description: scanDescription, from: scan)
+                        showSnackbar = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                            showSnackbar = false
+                            router.currentRoute = .home
+                        }
                     }) {
                         HStack {
                             Image(systemName: "checkmark.circle")
@@ -85,6 +95,12 @@ struct MeshPreviewView: View {
                 }
             }
         )
+        //TODO(Miky): Add error snackbar
+        .overlay(
+            Snackbar(isShowing: $showSnackbar, text: "Scan was successfully saved")
+                .offset(y: showSnackbar ? 0 : 100)
+                .animation(.spring(), value: showSnackbar)
+        )
     }
 }
 
@@ -101,5 +117,6 @@ struct MeshPreviewView_Previews: PreviewProvider {
 
         MeshPreviewView(scan: sampleScan)
             .environmentObject(Router())
+            .environmentObject(HomeViewModel())
     }
 }

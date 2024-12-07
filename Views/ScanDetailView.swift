@@ -4,6 +4,7 @@ struct ScanDetailView: View {
     let scan: ScanModel
     @EnvironmentObject var router: Router
 
+    //TODO(Miky): Add edit so the name, description can be edited
     var body: some View {
         VStack {
             GeometryReader { geometry in

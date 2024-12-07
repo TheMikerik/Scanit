@@ -3,6 +3,7 @@ import SwiftUI
 struct ScanCard: View {
     let scan: ScanModel
     let isInteractionEnabled: Bool
+    @EnvironmentObject var viewModel: HomeViewModel
 
     var body: some View {
         ZStack {
@@ -19,8 +20,12 @@ struct ScanCard: View {
                     Text(scan.name)
                         .font(.headline)
                     Spacer()
-                    Image(systemName: scan.favorite ? "star.fill" : "star")
-                        .foregroundColor(scan.favorite ? .yellow : .gray)
+                    Button(action: {
+                        viewModel.toggleFavorite(for: scan)
+                    }) {
+                        Image(systemName: scan.favorite ? "star.fill" : "star")
+                            .foregroundColor(scan.favorite ? .yellow : .gray)
+                    }
                 }
                 Spacer()
                 HStack {
@@ -56,10 +61,12 @@ struct ScanCard_Previews: PreviewProvider {
         )
         VStack {
             ScanCard(scan: sampleScanWithModel, isInteractionEnabled: false)
+                .environmentObject(HomeViewModel())
                 .padding()
                 .previewLayout(.sizeThatFits)
 
             ScanCard(scan: sampleScanWithoutModel, isInteractionEnabled: false)
+                .environmentObject(HomeViewModel())
                 .padding()
                 .previewLayout(.sizeThatFits)
         }

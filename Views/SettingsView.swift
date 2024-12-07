@@ -5,6 +5,8 @@ struct SettingsView: View {
     @EnvironmentObject var homeViewModel: HomeViewModel
     
     @State private var selectedTheme = "Light"
+    @State private var selectedLanguage = "English"
+
     @State private var modelFormat = "OBJ"
     @State private var enableTextures = true
 
@@ -18,6 +20,12 @@ struct SettingsView: View {
                     Text("Light").tag("Light")
                     Text("Dark").tag("Dark")
                     Text("System").tag("System")
+                }
+                
+                //TODO(Miky): Implement multiple languages
+                Picker("Language", selection: $selectedLanguage) {
+                    Text("English").tag("English")
+                    Text("Česky").tag("Česky")
                 }
             }
             
