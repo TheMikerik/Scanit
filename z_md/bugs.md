@@ -1,0 +1,1 @@
+- Performance issu while on homepage due to canvas with 3d models

@@ -1,3 +1,5 @@
+## 1. Normalize
+
 ```swift
 import AVFoundation
 import UIKit
