@@ -90,53 +90,8 @@ class CameraViewController: UIViewController {
     private func visualizeDepth(_ depthData: AVDepthData) {
         visualizationQueue.async {
             let depthMap = depthData.depthDataMap
-            let normalizedMap = self.normalizeDepthMap(depthMap)
+            depthMap.normalize()
         }
-    }
-
-    private func normalizeDepthMap(_ depthMap: CVPixelBuffer) -> [Float] {
-        let width = CVPixelBufferGetWidth(depthMap)
-        let height = CVPixelBufferGetHeight(depthMap)
-        
-        CVPixelBufferLockBaseAddress(depthMap, CVPixelBufferLockFlags.readOnly)
-        guard let baseAddress = CVPixelBufferGetBaseAddress(depthMap) else {
-            CVPixelBufferUnlockBaseAddress(depthMap, CVPixelBufferLockFlags.readOnly)
-            print("Failed to get base address")
-            return []
-        }
-        
-        let mapBuffer = baseAddress.assumingMemoryBound(to: Float32.self)
-
-        var normalizedDepthMap: [Float] = []
-        let firstPixel = mapBuffer[0]
-        var minDepth: Float = firstPixel
-        var maxDepth: Float = firstPixel
-
-        for y in 0..<height {
-            for x in 0..<width {
-                let pixel = mapBuffer[y * width + x]
-                if pixel < minDepth {
-                    minDepth = pixel
-                }
-                if pixel > maxDepth {
-                    maxDepth = pixel
-                }
-            }
-        }
-
-        let range = maxDepth - minDepth
-
-        for y in 0..<height {
-            for x in 0..<width {
-                let pixel = mapBuffer[y * width + x]
-                let normalizedPixel = (pixel - minDepth) / range
-                normalizedDepthMap.append(normalizedPixel)
-            }
-        }
-
-        CVPixelBufferUnlockBaseAddress(depthMap, CVPixelBufferLockFlags.readOnly)
-        
-        return normalizedDepthMap
     }
 }
 
